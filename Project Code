@@ -1,0 +1,401 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(EduApp());
+}
+
+class EduApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Edu Interactive',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        textTheme: TextTheme(
+          titleLarge: TextStyle(fontWeight: FontWeight.bold),
+          bodyMedium: TextStyle(fontSize: 16),
+        ),
+      ),
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    UpcomingTestsPage(),
+    ScoresPage(),
+    SubjectsPage(),
+  ];
+
+  final List<String> _pageTitles = [
+    "Upcoming Tests",
+    "Scores",
+    "Subjects & Q&A",
+  ];
+
+  void _onTabTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  AppBar _buildGradientAppBar(String title) {
+    return AppBar(
+      elevation: 4,
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.deepPurple, Colors.purpleAccent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+      ),
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+      centerTitle: true,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _buildGradientAppBar(_pageTitles[_selectedIndex]),
+      body: AnimatedSwitcher(
+        duration: Duration(milliseconds: 400),
+        child: _pages[_selectedIndex],
+        transitionBuilder: (child, animation) =>
+            FadeTransition(opacity: animation, child: child),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onTabTapped,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.calendar_today_outlined),
+            selectedIcon: Icon(Icons.calendar_today, color: Colors.deepPurple),
+            label: "Tests",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.score_outlined),
+            selectedIcon: Icon(Icons.score, color: Colors.deepPurple),
+            label: "Scores",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.question_answer_outlined),
+            selectedIcon:
+                Icon(Icons.question_answer, color: Colors.deepPurple),
+            label: "Q&A",
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class UpcomingTestsPage extends StatelessWidget {
+  final List<Map<String, String>> upcomingTests = [
+    {"subject": "Math", "date": "2025-06-10"},
+    {"subject": "Physics", "date": "2025-06-15"},
+    {"subject": "English", "date": "2025-06-20"},
+  ];
+
+  Color getColorBySubject(String subject) {
+    switch (subject) {
+      case 'Math':
+        return Colors.deepPurple.shade300;
+      case 'Physics':
+        return Colors.teal.shade300;
+      case 'English':
+        return Colors.orange.shade300;
+      default:
+        return Colors.grey.shade300;
+    }
+  }
+
+  IconData getIconBySubject(String subject) {
+    switch (subject) {
+      case 'Math':
+        return Icons.calculate;
+      case 'Physics':
+        return Icons.science;
+      case 'English':
+        return Icons.menu_book;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: EdgeInsets.all(16),
+      itemCount: upcomingTests.length,
+      itemBuilder: (context, index) {
+        final test = upcomingTests[index];
+        final subject = test["subject"]!;
+        final color = getColorBySubject(subject);
+        final icon = getIconBySubject(subject);
+
+        return Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 6,
+          margin: EdgeInsets.symmetric(vertical: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [color.withOpacity(0.7), color],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.white70,
+                child: Icon(icon, color: color, size: 28),
+              ),
+              title: Text(
+                subject,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              subtitle: Text(
+                "Date: ${test["date"]}",
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class ScoresPage extends StatelessWidget {
+  final Map<String, int> scores = {
+    "Math": 85,
+    "Physics": 90,
+    "English": 78,
+  };
+
+  Color getColorByScore(int score) {
+    if (score >= 90) return Colors.green.shade400;
+    if (score >= 75) return Colors.orange.shade400;
+    return Colors.red.shade400;
+  }
+
+  IconData getIconBySubject(String subject) {
+    switch (subject) {
+      case 'Math':
+        return Icons.calculate;
+      case 'Physics':
+        return Icons.science;
+      case 'English':
+        return Icons.menu_book;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: EdgeInsets.all(16),
+      children: scores.entries.map((entry) {
+        final color = getColorByScore(entry.value);
+        final icon = getIconBySubject(entry.key);
+
+        return Card(
+          elevation: 5,
+          margin: EdgeInsets.symmetric(vertical: 12),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: color.withOpacity(0.8),
+              child: Icon(icon, color: Colors.white),
+            ),
+            title: Text(
+              entry.key,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            trailing: Text(
+              "${entry.value}%",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: color,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class SubjectsPage extends StatefulWidget {
+  @override
+  State<SubjectsPage> createState() => _SubjectsPageState();
+}
+
+class _SubjectsPageState extends State<SubjectsPage> {
+  final List<String> subjects = ["Math", "Physics", "English"];
+  String? selectedSubject;
+  final TextEditingController questionController = TextEditingController();
+  String? answer;
+
+  final Map<String, Map<String, String>> subjectQnA = {
+    "Math": {
+      "What is integral?": "An integral is the area under the curve in calculus.",
+      "What is derivative?": "Derivative measures the rate of change of a function.",
+    },
+    "Physics": {
+      "What is force?": "Force is mass times acceleration (F=ma).",
+      "What is velocity?": "Velocity is speed with direction.",
+    },
+    "English": {
+      "Define noun.": "A noun is a person, place, or thing.",
+      "What is a verb?": "A verb expresses action or state of being.",
+    },
+  };
+
+  void askQuestion() {
+    final question = questionController.text.trim();
+    if (selectedSubject == null) {
+      setState(() {
+        answer = "Please select a subject first.";
+      });
+      return;
+    }
+    if (question.isEmpty) {
+      setState(() {
+        answer = "Please enter a question.";
+      });
+      return;
+    }
+
+    final subjectAnswers = subjectQnA[selectedSubject!] ?? {};
+    final response = subjectAnswers[question];
+    setState(() {
+      answer = response ?? "Sorry, I don't know the answer to that question.";
+    });
+  }
+
+  Color getSubjectColor(String subject) {
+    switch (subject) {
+      case "Math":
+        return Colors.deepPurple;
+      case "Physics":
+        return Colors.teal;
+      case "English":
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  @override
+  void dispose() {
+    questionController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final subjectColor =
+        selectedSubject != null ? getSubjectColor(selectedSubject!) : Colors.grey;
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Select Subject:",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: subjectColor, width: 2),
+            ),
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: selectedSubject,
+              hint: Text("Choose a subject", style: TextStyle(color: subjectColor)),
+              underline: SizedBox(),
+              items: subjects
+                  .map((subj) => DropdownMenuItem(
+                        value: subj,
+                        child: Text(subj, style: TextStyle(color: getSubjectColor(subj))),
+                      ))
+                  .toList(),
+              onChanged: (val) {
+                setState(() {
+                  selectedSubject = val;
+                  answer = null;
+                  questionController.clear();
+                });
+              },
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: questionController,
+            decoration: InputDecoration(
+              labelText: "Ask a question",
+              labelStyle: TextStyle(color: subjectColor),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: subjectColor, width: 2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.send, color: subjectColor),
+                onPressed: askQuestion,
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          if (answer != null)
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: subjectColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                answer!,
+                style: TextStyle(fontSize: 18, color: subjectColor.darken(0.2)),
+              ),
+            )
+        ],
+      ),
+    );
+  }
+}
+
+/// Extension to darken a color a bit
+extension ColorExtension on Color {
+  Color darken([double amount = .1]) {
+    assert(amount >= 0 && amount <= 1);
+    final hsl = HSLColor.fromColor(this);
+    final hslDark = hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
+    return hslDark.toColor();
+  }
+}
